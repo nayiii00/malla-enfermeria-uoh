@@ -84,29 +84,51 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderGrid() {
         grid.innerHTML = '';
         const totalSemesters = Math.max(...curriculumData.map(c => c.semester));
-        let totalCredits = 0;
+        const totalYears = Math.ceil(totalSemesters / 2);
+        const totalCredits = curriculumData.reduce((sum, course) => sum + course.credits, 0);
 
-        for (let i = 1; i <= totalSemesters; i++) {
-            const semesterColumn = document.createElement('div');
-            semesterColumn.className = 'semester-column';
+        for (let year = 1; year <= totalYears; year++) {
+            const yearContainer = document.createElement('div');
+            yearContainer.className = 'year-container';
+
+            const yearTitle = document.createElement('h2');
+            yearTitle.className = 'year-title';
+            yearTitle.textContent = `Año ${year}`;
+            yearContainer.appendChild(yearTitle);
+
+            const semestersWrapper = document.createElement('div');
+            semestersWrapper.className = 'semesters-wrapper';
+
+            const semesterNumbers = [year * 2 - 1, year * 2];
             
-            const semesterTitle = document.createElement('h2');
-            semesterTitle.className = 'semester-title';
-            semesterTitle.textContent = `Semestre ${i}`;
-            semesterColumn.appendChild(semesterTitle);
+            semesterNumbers.forEach(semesterNum => {
+                if (semesterNum > totalSemesters) return;
 
-            const semesterCourses = curriculumData.filter(course => course.semester === i);
-            semesterCourses.forEach(course => {
-                totalCredits += course.credits;
-                const courseEl = createCourseElement(course);
-                semesterColumn.appendChild(courseEl);
+                const semesterColumn = document.createElement('div');
+                semesterColumn.className = 'semester-column';
+                
+                const semesterTitle = document.createElement('h3');
+                semesterTitle.className = 'semester-title';
+                semesterTitle.textContent = `Semestre ${semesterNum}`;
+                semesterColumn.appendChild(semesterTitle);
+
+                const semesterCourses = curriculumData.filter(course => course.semester === semesterNum);
+                semesterCourses.forEach(course => {
+                    const courseEl = createCourseElement(course);
+                    semesterColumn.appendChild(courseEl);
+                });
+                semestersWrapper.appendChild(semesterColumn);
             });
-            grid.appendChild(semesterColumn);
+
+            yearContainer.appendChild(semestersWrapper);
+            grid.appendChild(yearContainer);
         }
+        
         creditsTotalEl.textContent = totalCredits;
         updateAllCourseStates();
         updateApprovedCredits();
     }
+
 
     function createCourseElement(course) {
         const courseEl = document.createElement('div');
@@ -141,7 +163,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!course || course.prerequisites.length === 0) {
             return true;
         }
-        // Manejo especial para Internados y ramos finales
         if (course.prerequisites.includes('Todo hasta 8 semestre')) {
              const allPreviousSemestersCompleted = curriculumData
                 .filter(c => c.semester <= 8)
@@ -176,7 +197,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!course) return;
 
         if (completedCourses.has(courseId)) {
-            // Des-completar un curso (y los que dependen de él)
             const coursesToUncomplete = new Set([courseId]);
             let changed = true;
             while(changed) {
@@ -193,10 +213,8 @@ document.addEventListener('DOMContentLoaded', () => {
             coursesToUncomplete.forEach(id => completedCourses.delete(id));
 
         } else if (arePrerequisitesMet(courseId)) {
-            // Completar un curso
             completedCourses.add(courseId);
         } else {
-            // Curso bloqueado, no hacer nada
             console.log(`Prerrequisitos para ${course.name} no cumplidos.`);
             return;
         }
@@ -216,4 +234,3 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initial render
     renderGrid();
 });
-
