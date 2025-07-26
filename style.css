@@ -68,9 +68,30 @@ header p {
 }
 
 .curriculum-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 40px; /* Espacio entre años */
+}
+
+.year-container {
+    background: #fff;
+    border-radius: var(--border-radius);
+    padding: 25px;
+    box-shadow: var(--shadow);
+}
+
+.year-title {
+    text-align: center;
+    color: var(--color-accent); /* Color rosado para el año */
+    margin-bottom: 25px;
+    font-size: 1.8em;
+    font-weight: 600;
+}
+
+.semesters-wrapper {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 20px;
+    grid-template-columns: 1fr 1fr; /* Dos columnas iguales para los semestres */
+    gap: 25px; /* Espacio entre las columnas de los semestres */
 }
 
 .semester-column {
@@ -86,6 +107,7 @@ header p {
     padding-bottom: 10px;
     border-bottom: 2px solid var(--color-secondary);
     margin-bottom: 10px;
+    font-size: 1.3em;
 }
 
 .course {
@@ -174,3 +196,22 @@ header p {
     opacity: 1;
 }
 
+/* Responsive Design */
+@media (max-width: 768px) {
+    .semesters-wrapper {
+        grid-template-columns: 1fr; /* Apila los semestres en pantallas pequeñas */
+    }
+
+    .container {
+        padding: 10px;
+    }
+
+    header h1 {
+        font-size: 1.8em;
+    }
+
+    .stats {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
